@@ -1,0 +1,1512 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CLEAR AIR — AQI Assistant | Presented By Janhvi</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            display: ['Plus Jakarta Sans', 'sans-serif'],
+          },
+          colors: {
+            skyTint: '#F4F9FF',
+            azureSoft: '#E2F0FF',
+            azureMid: '#38A3F1',
+            azureDeep: '#1D6FD1',
+            mintSoft: '#E3F6F0',
+            mintTag: '#98D8C8',
+            creamBadge: '#FDE7B7',
+            creamText: '#8C5E1A',
+            slateInk: '#1E293B',
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    /* Light architectural grid background inspired by the CLEAR AIR template */
+    body {
+      background-color: #F5FAFF;
+      background-image:
+        linear-gradient(to right, rgba(56, 163, 241, 0.07) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(56, 163, 241, 0.07) 1px, transparent 1px);
+      background-size: 36px 36px;
+      color: #1E293B;
+      overflow-x: hidden;
+    }
+
+    /* Smooth floating animation for clouds & robot */
+    @keyframes floatSlow {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-7px); }
+    }
+    @keyframes floatCloud {
+      0%, 100% { transform: translateX(0px); }
+      50% { transform: translateX(10px); }
+    }
+    @keyframes blinkEyes {
+      0%, 92%, 100% { transform: scaleY(1); }
+      95% { transform: scaleY(0.1); }
+    }
+    @keyframes pulseSoft {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.6; }
+    }
+
+    .animate-float { animation: floatSlow 3.6s ease-in-out infinite; }
+    .animate-cloud { animation: floatCloud 6s ease-in-out infinite; }
+    .robot-eye { transform-origin: center; animation: blinkEyes 4s infinite; }
+
+    /* Custom subtle scrollbar */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #EDF6FF; border-radius: 999px; }
+    ::-webkit-scrollbar-thumb { background: #B8D8F8; border-radius: 999px; }
+    ::-webkit-scrollbar-thumb:hover { background: #89C0F5; }
+
+    /* Ticket / Leaf accent badge styling from template */
+    .template-ticket {
+      background: #AEE2D4;
+      border: 1.5px dashed #FFFFFF;
+      box-shadow: 0 4px 12px rgba(56, 163, 241, 0.08);
+    }
+
+    .glass-card {
+      background: rgba(255, 255, 255, 0.88);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(186, 220, 252, 0.7);
+      box-shadow: 0 10px 30px -10px rgba(29, 111, 209, 0.08);
+    }
+  </style>
+</head>
+<body class="min-h-screen antialiased selection:bg-azureSoft selection:text-azureDeep">
+
+  <!-- Toast Notification Container (Replaces alert() cleanly) -->
+  <div id="toastContainer" class="fixed top-4 right-4 z-50 flex flex-col gap-3 max-w-sm w-full pointer-events-none px-4 sm:px-0"></div>
+
+  <!-- Top Navigation Bar -->
+  <nav class="sticky top-0 z-40 bg-white/85 backdrop-blur-md border-b border-blue-100">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-2xl bg-gradient-to-br from-sky-400 to-blue-500 flex items-center justify-center text-white shadow-sm">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z"/>
+          </svg>
+        </div>
+        <div>
+          <span class="font-display font-extrabold tracking-tight text-lg text-sky-600">CLEAR AIR</span>
+          <span class="hidden sm:inline-block ml-2 text-xs font-medium px-2.5 py-0.5 rounded-full bg-creamBadge text-creamText">AQI ASSISTANT</span>
+        </div>
+      </div>
+
+      <!-- Quick Jump Links -->
+      <div class="hidden md:flex items-center gap-1 text-sm font-medium text-slate-600">
+        <a href="#navigator" class="px-3 py-1.5 rounded-xl hover:bg-sky-50 hover:text-sky-600 transition">Smog Navigator</a>
+        <a href="#aerobot" class="px-3 py-1.5 rounded-xl hover:bg-sky-50 hover:text-sky-600 transition">AeroBot AI</a>
+        <a href="#plants" class="px-3 py-1.5 rounded-xl hover:bg-sky-50 hover:text-sky-600 transition">Indoor Plants</a>
+        <a href="#reminders" class="px-3 py-1.5 rounded-xl hover:bg-sky-50 hover:text-sky-600 transition">Alerts</a>
+        <a href="#quiz" class="px-3 py-1.5 rounded-xl hover:bg-sky-50 hover:text-sky-600 transition">Smog Quiz</a>
+        <a href="#checklist" class="px-3 py-1.5 rounded-xl hover:bg-sky-50 hover:text-sky-600 transition">Checklist</a>
+      </div>
+
+      <!-- Live Status Pill -->
+      <div class="flex items-center gap-2">
+        <span id="navAqiBadge" class="text-xs font-semibold px-3 py-1.5 rounded-full bg-amber-50 text-amber-800 border border-amber-200 flex items-center gap-1.5">
+          <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
+          <span>AQI: 285 (Severe Smog)</span>
+        </span>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero Banner Inspired Directly by "clear air.pdf" Template -->
+  <header class="relative overflow-hidden pt-8 pb-12 sm:pt-12 sm:pb-16 border-b border-blue-100/80 bg-gradient-to-b from-[#EAF4FF] via-[#F3F9FF] to-transparent">
+    <!-- Decorative Cloud Motifs (Light & Airy) -->
+    <svg class="hidden sm:block absolute top-6 left-8 w-44 text-white drop-shadow-sm animate-cloud pointer-events-none" viewBox="0 0 200 70" fill="currentColor">
+      <rect x="10" y="10" width="95" height="18" rx="9"/>
+      <rect x="40" y="34" width="120" height="18" rx="9"/>
+      <circle cx="172" cy="19" r="8"/>
+    </svg>
+    <svg class="hidden md:block absolute top-12 right-12 w-52 text-white drop-shadow-sm animate-cloud pointer-events-none" style="animation-delay: 1.5s;" viewBox="0 0 220 75" fill="currentColor">
+      <rect x="30" y="8" width="110" height="20" rx="10"/>
+      <rect x="75" y="34" width="125" height="20" rx="10"/>
+      <circle cx="18" cy="44" r="9"/>
+    </svg>
+
+    <!-- Decorative Mint Ticket Strips (Top Left & Bottom Right like template) -->
+    <div class="hidden lg:flex flex-col gap-2 absolute top-10 left-4 -rotate-12 opacity-80 pointer-events-none">
+      <div class="template-ticket w-16 h-7 rounded-lg"></div>
+      <div class="template-ticket w-16 h-7 rounded-lg ml-3"></div>
+    </div>
+    <div class="hidden lg:flex flex-col gap-2 absolute bottom-10 right-6 rotate-12 opacity-80 pointer-events-none">
+      <div class="template-ticket w-16 h-7 rounded-lg"></div>
+      <div class="template-ticket w-16 h-7 rounded-lg -ml-3"></div>
+    </div>
+
+    <!-- Decorative Botanical Leaves (Bottom Left & Right Corners) -->
+    <svg class="hidden sm:block absolute -bottom-2 left-0 w-44 h-44 text-emerald-600/20 pointer-events-none" viewBox="0 0 200 200" fill="currentColor">
+      <path d="M20,200 C20,110 70,50 140,30 C130,100 90,160 20,200 Z"/>
+      <path d="M65,200 C80,130 130,85 190,80 C165,140 120,180 65,200 Z" opacity="0.75"/>
+    </svg>
+    <svg class="hidden sm:block absolute -bottom-2 right-0 w-44 h-44 text-emerald-600/20 pointer-events-none scale-x-[-1]" viewBox="0 0 200 200" fill="currentColor">
+      <path d="M20,200 C20,110 70,50 140,30 C130,100 90,160 20,200 Z"/>
+      <path d="M65,200 C80,130 130,85 190,80 C165,140 120,180 65,200 Z" opacity="0.75"/>
+    </svg>
+
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
+      <!-- Top Warm Cream Pill Badge -->
+      <div class="inline-flex items-center gap-2 px-5 py-2 rounded-2xl bg-creamBadge border border-amber-200/80 shadow-sm mb-5">
+        <span class="w-2 h-2 rounded-full bg-amber-500"></span>
+        <span class="text-xs sm:text-sm font-bold tracking-widest uppercase text-creamText">AQI ASSISTANT • WINTER SMOG &amp; URBAN AIR CARE</span>
+      </div>
+
+      <!-- Large Clean Architectural Display Title -->
+      <h1 class="font-display font-extrabold text-5xl sm:text-7xl md:text-8xl tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-sky-500 via-blue-500 to-teal-500 drop-shadow-sm select-none">
+        CLEAR AIR
+      </h1>
+
+      <!-- Subtitle & Presenter Credit -->
+      <p class="mt-4 max-w-2xl mx-auto text-base sm:text-lg text-slate-600 leading-relaxed">
+        Helping families and communities navigate severe winter smog &amp; urban air pollution with tailored low-emission routines, indoor air hacks, purifying plants, and actionable daily habits.
+      </p>
+
+      <div class="mt-4 inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/90 border border-sky-100 text-xs sm:text-sm text-slate-600 shadow-sm">
+        <span>Presented By:</span>
+        <span class="font-semibold text-sky-700">Janhvi</span>
+      </div>
+
+      <!-- Quick Summary Metrics Strip -->
+      <div class="mt-8 grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 max-w-4xl mx-auto">
+        <div class="glass-card rounded-2xl p-3.5 text-center">
+          <div class="text-xs font-medium text-slate-500">Selected Region</div>
+          <div id="heroCityDisplay" class="font-display font-bold text-base sm:text-lg text-slate-800 mt-0.5">Delhi NCR</div>
+        </div>
+        <div class="glass-card rounded-2xl p-3.5 text-center">
+          <div class="text-xs font-medium text-slate-500">Air Condition</div>
+          <div id="heroSeverityDisplay" class="font-display font-bold text-base sm:text-lg text-rose-600 mt-0.5">Severe Smog</div>
+        </div>
+        <div class="glass-card rounded-2xl p-3.5 text-center">
+          <div class="text-xs font-medium text-slate-500">Home Plants Added</div>
+          <div id="heroPlantScore" class="font-display font-bold text-base sm:text-lg text-emerald-600 mt-0.5">2 Plants (+24% IAQ)</div>
+        </div>
+        <div class="glass-card rounded-2xl p-3.5 text-center">
+          <div class="text-xs font-medium text-slate-500">Daily Tasks Done</div>
+          <div id="heroChecklistScore" class="font-display font-bold text-base sm:text-lg text-sky-600 mt-0.5">1 / 6 Completed</div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content Container -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-14">
+
+    <!-- SECTION 1: PERSONALIZED LOCATION & LIFESTYLE SMOG NAVIGATOR -->
+    <section id="navigator" class="scroll-mt-20">
+      <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-6">
+        <div>
+          <span class="inline-block text-xs font-bold uppercase tracking-wider px-3 py-1 rounded-full bg-sky-100 text-sky-700 mb-2">Step 1 • Tailored Action Plan</span>
+          <h2 class="font-display font-bold text-2xl sm:text-3xl text-slate-800">Location &amp; Lifestyle Smog Navigator</h2>
+          <p class="text-sm sm:text-base text-slate-600 mt-1">Enter your location, current smog severity, and household lifestyle to get customized routines and see the direct measurable impact of every choice.</p>
+        </div>
+      </div>
+
+      <!-- Interactive Input Bar -->
+      <div class="glass-card rounded-3xl p-5 sm:p-6 mb-6">
+        <form id="navigatorForm" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
+          <!-- City / Region -->
+          <div>
+            <label for="citySelect" class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1.5">City / Region</label>
+            <select id="citySelect" class="w-full rounded-2xl border border-blue-200 bg-white px-4 py-3 text-sm font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-sky-400">
+              <option value="Delhi NCR">Delhi NCR, India</option>
+              <option value="Mumbai">Mumbai, India</option>
+              <option value="Bengaluru">Bengaluru, India</option>
+              <option value="London">London, UK</option>
+              <option value="Lahore">Lahore, Pakistan</option>
+              <option value="Beijing">Beijing, China</option>
+              <option value="Custom">Other / Custom City...</option>
+            </select>
+            <input id="customCityInput" type="text" placeholder="Type your city name..." class="hidden mt-2 w-full rounded-2xl border border-blue-200 bg-sky-50/50 px-4 py-2.5 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-sky-400" />
+          </div>
+
+          <!-- Air Quality Severity -->
+          <div>
+            <label for="aqiSeveritySelect" class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1.5">Current Air / Smog Level</label>
+            <select id="aqiSeveritySelect" class="w-full rounded-2xl border border-blue-200 bg-white px-4 py-3 text-sm font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-sky-400">
+              <option value="severe" selected>Severe Winter Smog (AQI 250–450+)</option>
+              <option value="poor">Poor / Unhealthy (AQI 150–250)</option>
+              <option value="moderate">Moderate Urban Haze (AQI 80–150)</option>
+              <option value="good">Good / Breezy Day (AQI 0–80)</option>
+            </select>
+          </div>
+
+          <!-- Lifestyle Profile -->
+          <div>
+            <label for="lifestyleSelect" class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1.5">Household Lifestyle</label>
+            <select id="lifestyleSelect" class="w-full rounded-2xl border border-blue-200 bg-white px-4 py-3 text-sm font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-sky-400">
+              <option value="family" selected>Family with Kids</option>
+              <option value="commuter">Daily Office / School Commuter</option>
+              <option value="wfh">Work From Home / Remote</option>
+              <option value="seniors">Seniors / Respiratory Sensitive</option>
+            </select>
+          </div>
+
+          <!-- Generate Button -->
+          <div>
+            <button type="submit" class="w-full rounded-2xl bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 text-white font-semibold py-3 px-5 text-sm shadow-md shadow-sky-200 transition transform active:scale-[0.99] flex items-center justify-center gap-2">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+              </svg>
+              <span>Update Personalized Plan</span>
+            </button>
+          </div>
+        </form>
+
+        <!-- Dynamic Location Advisory Banner -->
+        <div id="locationAdvisoryBanner" class="mt-5 rounded-2xl bg-gradient-to-r from-sky-50 via-blue-50 to-teal-50 border border-sky-200/80 p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div class="flex items-start gap-3">
+            <div class="w-9 h-9 rounded-xl bg-white flex items-center justify-center text-sky-600 shadow-sm shrink-0 mt-0.5">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+              </svg>
+            </div>
+            <div>
+              <h3 id="advisoryTitle" class="font-display font-bold text-sm sm:text-base text-slate-800">Delhi NCR • Severe Winter Smog Protocol (Family with Kids)</h3>
+              <p id="advisoryDesc" class="text-xs sm:text-sm text-slate-600 mt-0.5">Temperature inversion traps PM2.5 near ground level between 6 AM–10 AM and after 6 PM. Keep outdoor play indoors today and seal window drafts.</p>
+            </div>
+          </div>
+          <span id="impactSummaryPill" class="shrink-0 text-xs font-bold px-3.5 py-2 rounded-xl bg-emerald-100 text-emerald-800 border border-emerald-200">
+            Est. Impact: -68% PM2.5 Exposure &amp; -2.4 kg CO₂/day
+          </span>
+        </div>
+      </div>
+
+      <!-- 3-Column Tailored Recommendations + Direct Impact Explainer -->
+      <div id="recommendationsGrid" class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Populated dynamically via JS -->
+      </div>
+    </section>
+
+    <!-- SECTION 2: CUTE ROBOTIC AI CHATBOT ASSISTANT ("AEROBOT") -->
+    <section id="aerobot" class="scroll-mt-20">
+      <div class="glass-card rounded-3xl overflow-hidden border border-sky-200">
+        <div class="bg-gradient-to-r from-[#E4F2FF] via-[#EAF7F4] to-[#FFF6E3] px-6 py-5 border-b border-sky-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div class="flex items-center gap-4">
+            <!-- Custom Cute Robotic SVG Mascot -->
+            <div class="w-16 h-16 rounded-2xl bg-white shadow-md border border-sky-100 flex items-center justify-center shrink-0 animate-float">
+              <svg class="w-13 h-13" viewBox="0 0 100 100" fill="none">
+                <!-- Antenna -->
+                <line x1="50" y1="10" x2="50" y2="22" stroke="#38A3F1" stroke-width="4" stroke-linecap="round"/>
+                <circle cx="50" cy="8" r="5" fill="#98D8C8" stroke="#1D6FD1" stroke-width="2"/>
+                <!-- Ears -->
+                <rect x="14" y="42" width="8" height="18" rx="4" fill="#98D8C8"/>
+                <rect x="78" y="42" width="8" height="18" rx="4" fill="#98D8C8"/>
+                <!-- Head -->
+                <rect x="22" y="22" width="56" height="48" rx="18" fill="#FFFFFF" stroke="#38A3F1" stroke-width="3.5"/>
+                <!-- Visor Screen -->
+                <rect x="30" y="32" width="40" height="24" rx="10" fill="#E3F3FF"/>
+                <!-- Blinking Eyes -->
+                <circle class="robot-eye" cx="41" cy="44" r="4.2" fill="#1D6FD1"/>
+                <circle class="robot-eye" cx="59" cy="44" r="4.2" fill="#1D6FD1"/>
+                <circle cx="42.5" cy="42.5" r="1.3" fill="#FFFFFF"/>
+                <circle cx="60.5" cy="42.5" r="1.3" fill="#FFFFFF"/>
+                <!-- Cute Rosy Cheeks -->
+                <ellipse cx="33" cy="51" rx="3.5" ry="2" fill="#FDA4AF" opacity="0.7"/>
+                <ellipse cx="67" cy="51" rx="3.5" ry="2" fill="#FDA4AF" opacity="0.7"/>
+                <!-- Happy Smile -->
+                <path d="M44 52 Q50 57 56 52" stroke="#1D6FD1" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+                <!-- Leaf Sprout Badge on Chest -->
+                <rect x="34" y="73" width="32" height="16" rx="8" fill="#E3F6F0" stroke="#98D8C8" stroke-width="2"/>
+                <path d="M50 85 C50 79 55 76 59 77 C58 82 54 85 50 85 Z" fill="#10B981"/>
+                <path d="M50 85 C50 80 45 77 41 78 C42 82 46 85 50 85 Z" fill="#34D399"/>
+              </svg>
+            </div>
+            <div>
+              <div class="flex items-center gap-2 flex-wrap">
+                <h2 class="font-display font-bold text-xl sm:text-2xl text-slate-800">AeroBot — Your Cute Clear Air Buddy</h2>
+                <span class="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-700">Online &amp; Ready</span>
+              </div>
+              <p class="text-xs sm:text-sm text-slate-600 mt-0.5">Ask me for fun indoor smog-day activities, creative hobbies to learn at home, purifying plant tips, or pollution precautions!</p>
+            </div>
+          </div>
+
+          <button id="clearChatBtn" type="button" class="self-start sm:self-center text-xs font-medium px-3.5 py-2 rounded-xl bg-white hover:bg-sky-50 text-slate-600 border border-blue-100 transition">
+            Reset Chat
+          </button>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12">
+          <!-- Left Quick Prompt & Idea Menu -->
+          <div class="lg:col-span-4 bg-sky-50/60 p-5 border-b lg:border-b-0 lg:border-r border-sky-100 space-y-4">
+            <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500">Tap a Topic for AeroBot</h3>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-2.5">
+              <button type="button" class="aero-prompt-btn text-left p-3 rounded-2xl bg-white hover:bg-sky-100/70 border border-blue-100 text-xs sm:text-sm font-medium text-slate-700 transition flex items-center gap-2.5 shadow-sm" data-prompt="Suggest fun indoor activities for families & kids during severe smog">
+                <span class="text-lg">🎲</span>
+                <span>Fun Indoor Family Activities</span>
+              </button>
+              <button type="button" class="aero-prompt-btn text-left p-3 rounded-2xl bg-white hover:bg-sky-100/70 border border-blue-100 text-xs sm:text-sm font-medium text-slate-700 transition flex items-center gap-2.5 shadow-sm" data-prompt="What new creative skills or hobbies can I learn indoors on high pollution days?">
+                <span class="text-lg">🎨</span>
+                <span>Learn New Creative Things Indoors</span>
+              </button>
+              <button type="button" class="aero-prompt-btn text-left p-3 rounded-2xl bg-white hover:bg-sky-100/70 border border-blue-100 text-xs sm:text-sm font-medium text-slate-700 transition flex items-center gap-2.5 shadow-sm" data-prompt="Which indoor plants purify house air best and where should I place them?">
+                <span class="text-lg">🌿</span>
+                <span>Best Air-Purifying House Plants</span>
+              </button>
+              <button type="button" class="aero-prompt-btn text-left p-3 rounded-2xl bg-white hover:bg-sky-100/70 border border-blue-100 text-xs sm:text-sm font-medium text-slate-700 transition flex items-center gap-2.5 shadow-sm" data-prompt="What precautions should I take before stepping outside in winter smog?">
+                <span class="text-lg">😷</span>
+                <span>Winter Smog Outdoor Precautions</span>
+              </button>
+              <button type="button" class="aero-prompt-btn text-left p-3 rounded-2xl bg-white hover:bg-sky-100/70 border border-blue-100 text-xs sm:text-sm font-medium text-slate-700 transition flex items-center gap-2.5 shadow-sm" data-prompt="Give me 3 low-emission daily routine swaps and their exact CO2 impact">
+                <span class="text-lg">🚲</span>
+                <span>Low-Emission Daily Swaps</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Right Chat Window -->
+          <div class="lg:col-span-8 flex flex-col h-[430px] bg-white/70">
+            <div id="chatMessages" class="flex-1 overflow-y-auto p-5 space-y-4">
+              <!-- Initial Welcome Message -->
+              <div class="flex items-start gap-3">
+                <div class="w-8 h-8 rounded-xl bg-sky-100 text-sky-600 flex items-center justify-center font-bold text-xs shrink-0">🤖</div>
+                <div class="bg-sky-50 border border-sky-100 rounded-2xl rounded-tl-none px-4 py-3 text-sm text-slate-700 max-w-xl leading-relaxed">
+                  Beep-boop! Hi there! I'm <strong>AeroBot</strong>, your friendly Clear Air assistant! 🌤️<br/>
+                  Staying indoors because of smog doesn't have to be boring! Ask me for <strong>creative indoor hobbies</strong>, <strong>family games</strong>, <strong>air-cleaning houseplants</strong>, or <strong>pollution safety tips</strong>!
+                </div>
+              </div>
+            </div>
+
+            <!-- Chat Input Form -->
+            <form id="chatForm" class="p-4 bg-white border-t border-sky-100 flex items-center gap-2.5">
+              <input id="chatInput" type="text" required placeholder="Ask AeroBot about indoor creative hobbies, plants, or smog safety..." class="flex-1 rounded-2xl border border-blue-200 bg-sky-50/40 px-4 py-3 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-400" />
+              <button type="submit" id="chatSendBtn" class="rounded-2xl bg-sky-500 hover:bg-sky-600 text-white font-semibold px-5 py-3 text-sm shadow-sm transition flex items-center gap-1.5 shrink-0">
+                <span>Send</span>
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14M12 5l7 7-7 7"/>
+                </svg>
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 3: NATURAL INDOOR AIR-PURIFYING PLANT PLANNER -->
+    <section id="plants" class="scroll-mt-20">
+      <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-6">
+        <div>
+          <span class="inline-block text-xs font-bold uppercase tracking-wider px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 mb-2">Natural Indoor Bio-Filters</span>
+          <h2 class="font-display font-bold text-2xl sm:text-3xl text-slate-800">Indoor Air-Purifying Plants Guide</h2>
+          <p class="text-sm sm:text-base text-slate-600 mt-1">Select plants to add to your home sanctuary and naturally absorb toxins like formaldehyde, benzene, and excess CO₂.</p>
+        </div>
+
+        <!-- Home Plant Purification Meter -->
+        <div class="glass-card rounded-2xl px-4 py-3 flex items-center gap-4">
+          <div>
+            <div class="text-xs font-semibold text-slate-500">Your Home Bio-Purification Boost</div>
+            <div class="flex items-center gap-2 mt-1">
+              <div class="w-32 h-2.5 bg-emerald-100 rounded-full overflow-hidden">
+                <div id="plantMeterBar" class="h-full bg-emerald-500 rounded-full transition-all duration-300" style="width: 34%;"></div>
+              </div>
+              <span id="plantMeterText" class="text-xs font-bold text-emerald-700">+24% Freshness</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Filter Pills -->
+      <div class="flex flex-wrap gap-2 mb-5">
+        <button type="button" class="plant-filter-btn active px-4 py-1.5 rounded-full text-xs font-semibold bg-emerald-600 text-white transition" data-filter="all">All Plants (6)</button>
+        <button type="button" class="plant-filter-btn px-4 py-1.5 rounded-full text-xs font-semibold bg-white text-slate-600 border border-slate-200 hover:bg-emerald-50 transition" data-filter="low-light">Low Light Friendly</button>
+        <button type="button" class="plant-filter-btn px-4 py-1.5 rounded-full text-xs font-semibold bg-white text-slate-600 border border-slate-200 hover:bg-emerald-50 transition" data-filter="pet-safe">Pet Safe 🐾</button>
+        <button type="button" class="plant-filter-btn px-4 py-1.5 rounded-full text-xs font-semibold bg-white text-slate-600 border border-slate-200 hover:bg-emerald-50 transition" data-filter="night-o2">Night Oxygen Boost</button>
+      </div>
+
+      <!-- Plant Cards Grid -->
+      <div id="plantsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- Populated dynamically via JS -->
+      </div>
+    </section>
+
+    <!-- SECTION 4: SMART OUTDOOR & INDOOR NOTIFICATIONS / REMINDERS -->
+    <section id="reminders" class="scroll-mt-20">
+      <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-6">
+        <div>
+          <span class="inline-block text-xs font-bold uppercase tracking-wider px-3 py-1 rounded-full bg-creamBadge text-creamText mb-2">Smart Alerts &amp; Routines</span>
+          <h2 class="font-display font-bold text-2xl sm:text-3xl text-slate-800">Outdoor &amp; Indoor Activity Reminders</h2>
+          <p class="text-sm sm:text-base text-slate-600 mt-1">Schedule reminders for stepping outside or maintaining clean indoor air, and trigger instant live alert popups.</p>
+        </div>
+        <button id="triggerSampleAlertBtn" type="button" class="self-start md:self-auto rounded-2xl bg-amber-100 hover:bg-amber-200 text-amber-900 border border-amber-300 font-semibold px-4 py-2.5 text-xs sm:text-sm transition flex items-center gap-2 shadow-sm">
+          <span>🔔</span>
+          <span>Test Live Smog Alert Notification</span>
+        </button>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <!-- Add Custom Reminder Form -->
+        <div class="lg:col-span-4 glass-card rounded-3xl p-5 sm:p-6 h-fit">
+          <h3 class="font-display font-bold text-lg text-slate-800 mb-1">Create New Reminder</h3>
+          <p class="text-xs text-slate-500 mb-4">Add a task alert for going outside or staying indoors.</p>
+          <form id="reminderForm" class="space-y-3.5">
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">Category</label>
+              <select id="reminderCategory" class="w-full rounded-2xl border border-blue-200 bg-white px-3.5 py-2.5 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-sky-400">
+                <option value="outdoor">🚶 Going Outside Alert</option>
+                <option value="indoor">🏡 Indoor Air Care Alert</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">Reminder Task</label>
+              <input id="reminderText" type="text" required placeholder="e.g., Wear N95 mask &amp; carry saline drops" class="w-full rounded-2xl border border-blue-200 bg-white px-3.5 py-2.5 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-sky-400" />
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">Preferred Time</label>
+              <input id="reminderTime" type="time" value="08:30" required class="w-full rounded-2xl border border-blue-200 bg-white px-3.5 py-2.5 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-sky-400" />
+            </div>
+            <button type="submit" class="w-full rounded-2xl bg-sky-500 hover:bg-sky-600 text-white font-semibold py-2.5 px-4 text-sm shadow-sm transition">
+              + Add &amp; Activate Reminder
+            </button>
+          </form>
+        </div>
+
+        <!-- Active Outdoor & Indoor Reminder Lists -->
+        <div class="lg:col-span-8 grid grid-cols-1 md:grid-cols-2 gap-5">
+          <!-- Going Outside Column -->
+          <div class="glass-card rounded-3xl p-5 border-t-4 border-t-amber-400">
+            <div class="flex items-center justify-between mb-3">
+              <h3 class="font-display font-bold text-base text-slate-800 flex items-center gap-2">
+                <span class="w-7 h-7 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center text-sm">🚶</span>
+                <span>Going Outside Alerts</span>
+              </h3>
+              <span class="text-xs font-medium text-slate-400">Tap bell to test</span>
+            </div>
+            <div id="outdoorRemindersList" class="space-y-2.5"></div>
+          </div>
+
+          <!-- Indoor Care Column -->
+          <div class="glass-card rounded-3xl p-5 border-t-4 border-t-teal-400">
+            <div class="flex items-center justify-between mb-3">
+              <h3 class="font-display font-bold text-base text-slate-800 flex items-center gap-2">
+                <span class="w-7 h-7 rounded-xl bg-teal-100 text-teal-700 flex items-center justify-center text-sm">🏡</span>
+                <span>Staying Indoor Alerts</span>
+              </h3>
+              <span class="text-xs font-medium text-slate-400">Tap bell to test</span>
+            </div>
+            <div id="indoorRemindersList" class="space-y-2.5"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 5: INFORMATIVE AIR POLLUTION KNOWLEDGE GAME ("SMOG BUSTER CHALLENGE") -->
+    <section id="quiz" class="scroll-mt-20">
+      <div class="glass-card rounded-3xl p-6 sm:p-8 border border-blue-200 bg-gradient-to-br from-white via-[#F4FAFF] to-[#EEF9F5]">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-blue-100">
+          <div>
+            <span class="inline-block text-xs font-bold uppercase tracking-wider px-3 py-1 rounded-full bg-indigo-100 text-indigo-700 mb-2">Interactive Knowledge Game</span>
+            <h2 class="font-display font-bold text-2xl sm:text-3xl text-slate-800">Smog Buster &amp; Clean Air IQ Game</h2>
+            <p class="text-sm text-slate-600 mt-1">Test your air pollution knowledge, bust common smog myths, and unlock your Clean Air Guardian rank!</p>
+          </div>
+          <div class="flex items-center gap-3">
+            <div class="px-4 py-2 rounded-2xl bg-white border border-blue-100 text-center shadow-sm">
+              <div class="text-[11px] font-semibold uppercase text-slate-400">Score</div>
+              <div id="quizScoreDisplay" class="font-display font-extrabold text-xl text-sky-600">0 / 5</div>
+            </div>
+            <div class="px-4 py-2 rounded-2xl bg-creamBadge border border-amber-200 text-center shadow-sm">
+              <div class="text-[11px] font-semibold uppercase text-creamText">Rank</div>
+              <div id="quizRankDisplay" class="font-display font-bold text-sm text-creamText">Air Rookie</div>
+            </div>
+          </div>
+        </div>
+
+        <div id="quizBody" class="mt-6">
+          <!-- Populated dynamically via JS -->
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 6: ESSENTIAL PRECAUTIONS + END-OF-DAY ACTION CHECKLIST -->
+    <section id="checklist" class="scroll-mt-20 space-y-8">
+      <!-- Essential Precautions Reference Grid -->
+      <div>
+        <span class="inline-block text-xs font-bold uppercase tracking-wider px-3 py-1 rounded-full bg-rose-100 text-rose-700 mb-2">Health &amp; Safety Guide</span>
+        <h2 class="font-display font-bold text-2xl sm:text-3xl text-slate-800">Essential Smog Precautions</h2>
+        <p class="text-sm sm:text-base text-slate-600 mt-1 mb-5">Key protective habits recommended during high urban pollution and winter smog episodes.</p>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div class="glass-card rounded-2xl p-4 border-l-4 border-l-sky-500">
+            <div class="font-display font-bold text-sm text-slate-800 mb-1.5">😷 Mask &amp; Eye Shield</div>
+            <p class="text-xs text-slate-600 leading-relaxed">Use a snug-fitting <strong>N95 / N99 respirator</strong> (cloth masks do not block PM2.5). Wear wraparound glasses and rinse eyes with clean water after commuting.</p>
+          </div>
+          <div class="glass-card rounded-2xl p-4 border-l-4 border-l-emerald-500">
+            <div class="font-display font-bold text-sm text-slate-800 mb-1.5">🪟 Smart Ventilation</div>
+            <p class="text-xs text-slate-600 leading-relaxed">Keep windows sealed during morning/evening smog peaks. Ventilate briefly between <strong>1 PM – 4 PM</strong> when sunlight disperses ground-level pollutants.</p>
+          </div>
+          <div class="glass-card rounded-2xl p-4 border-l-4 border-l-amber-500">
+            <div class="font-display font-bold text-sm text-slate-800 mb-1.5">🥗 Anti-Inflammatory Diet</div>
+            <p class="text-xs text-slate-600 leading-relaxed">Stay hydrated and eat Vitamin C, Omega-3, and antioxidant-rich foods (citrus, walnuts, turmeric, ginger, jaggery) to help combat oxidative stress.</p>
+          </div>
+          <div class="glass-card rounded-2xl p-4 border-l-4 border-l-purple-500">
+            <div class="font-display font-bold text-sm text-slate-800 mb-1.5">👶 Kids &amp; Seniors Care</div>
+            <p class="text-xs text-slate-600 leading-relaxed">Avoid outdoor jogging or playground visits when AQI &gt; 200. Keep prescribed inhalers accessible and avoid burning incense, candles, or waste indoors.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Final Daily Clean Air Checklist -->
+      <div class="glass-card rounded-3xl p-6 sm:p-8 border-2 border-sky-200 bg-white">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-5">
+          <div>
+            <span class="inline-block text-xs font-bold uppercase tracking-wider px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 mb-2">Final Daily Tracker</span>
+            <h2 class="font-display font-bold text-2xl text-slate-800">End-of-Day Clean Air Checklist</h2>
+            <p class="text-xs sm:text-sm text-slate-600 mt-0.5">Verify that all essential low-emission &amp; indoor protection tasks are completed today.</p>
+          </div>
+          <div class="text-right">
+            <span id="checklistProgressLabel" class="font-display font-extrabold text-2xl text-sky-600">17%</span>
+            <div class="text-xs text-slate-500">Completed Today</div>
+          </div>
+        </div>
+
+        <!-- Progress Bar -->
+        <div class="w-full h-3 bg-sky-100 rounded-full overflow-hidden mb-6">
+          <div id="checklistProgressBar" class="h-full bg-gradient-to-r from-sky-400 via-teal-400 to-emerald-500 rounded-full transition-all duration-500" style="width: 17%;"></div>
+        </div>
+
+        <!-- Add Custom Checklist Item -->
+        <form id="addChecklistForm" class="flex flex-col sm:flex-row gap-2.5 mb-5">
+          <input id="newChecklistInput" type="text" placeholder="Add your own family clean-air task (e.g., Damp mop bedroom floor)..." class="flex-1 rounded-2xl border border-blue-200 bg-sky-50/40 px-4 py-2.5 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-sky-400" />
+          <button type="submit" class="rounded-2xl bg-slate-800 hover:bg-slate-900 text-white font-semibold px-5 py-2.5 text-sm transition shrink-0">
+            + Add Task
+          </button>
+        </form>
+
+        <!-- Checklist Items Container -->
+        <div id="checklistItemsContainer" class="space-y-2.5">
+          <!-- Populated dynamically via JS -->
+        </div>
+
+        <!-- Celebration Banner when 100% Completed -->
+        <div id="checklistCompleteBanner" class="hidden mt-6 rounded-2xl bg-gradient-to-r from-emerald-50 via-teal-50 to-sky-50 border border-emerald-200 p-5 text-center">
+          <div class="text-3xl mb-1">🎉🌿✨</div>
+          <h3 class="font-display font-bold text-lg text-emerald-900">All Clean Air Tasks Completed!</h3>
+          <p class="text-xs sm:text-sm text-emerald-700 mt-1">Amazing job! Your household lowered daily emissions and protected everyone's lungs from winter smog today.</p>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Clean Light Footer -->
+  <footer class="mt-16 border-t border-blue-100 bg-white/80 py-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs sm:text-sm text-slate-500">
+      <div class="flex items-center gap-2">
+        <span class="font-display font-bold text-sky-600">CLEAR AIR</span>
+        <span>•</span>
+        <span>AQI Assistant for Families &amp; Communities</span>
+      </div>
+      <div>
+        Presented By: <strong class="text-slate-700">Janhvi</strong> • Breathe Clean, Live Green 🌿
+      </div>
+    </div>
+  </footer>
+
+  <!-- Application JavaScript Logic -->
+  <script>
+    // ==========================================
+    // 1. TOAST NOTIFICATION HELPER (NO alert())
+    // ==========================================
+    function showToast(title, message, type = 'info') {
+      const container = document.getElementById('toastContainer');
+      const toast = document.createElement('div');
+      const palette = {
+        info: 'bg-white border-sky-200 text-slate-800',
+        alert: 'bg-amber-50 border-amber-300 text-amber-950',
+        success: 'bg-emerald-50 border-emerald-300 text-emerald-950'
+      };
+      const iconMap = { info: '🌤️', alert: '🔔', success: '🌿' };
+
+      toast.className = `pointer-events-auto rounded-2xl border p-4 shadow-lg backdrop-blur-md transition-all duration-300 transform translate-y-0 ${palette[type] || palette.info}`;
+      toast.innerHTML = `
+        <div class="flex items-start gap-3">
+          <span class="text-xl leading-none mt-0.5">${iconMap[type] || '🌤️'}</span>
+          <div class="flex-1">
+            <div class="font-display font-bold text-sm">${title}</div>
+            <div class="text-xs opacity-90 mt-0.5 leading-relaxed">${message}</div>
+          </div>
+          <button type="button" class="text-slate-400 hover:text-slate-700 text-sm font-bold" onclick="this.parentElement.parentElement.remove()">✕</button>
+        </div>
+      `;
+      container.appendChild(toast);
+      setTimeout(() => {
+        if (toast.parentElement) {
+          toast.style.opacity = '0';
+          toast.style.transform = 'translateY(-8px)';
+          setTimeout(() => toast.remove(), 300);
+        }
+      }, 5000);
+    }
+
+    // ==========================================
+    // 2. SMOG NAVIGATOR DATA & INTERACTIVITY
+    // ==========================================
+    const citySelect = document.getElementById('citySelect');
+    const customCityInput = document.getElementById('customCityInput');
+    const aqiSeveritySelect = document.getElementById('aqiSeveritySelect');
+    const lifestyleSelect = document.getElementById('lifestyleSelect');
+    const navigatorForm = document.getElementById('navigatorForm');
+
+    citySelect.addEventListener('change', () => {
+      if (citySelect.value === 'Custom') {
+        customCityInput.classList.remove('hidden');
+        customCityInput.focus();
+      } else {
+        customCityInput.classList.add('hidden');
+      }
+    });
+
+    const navigatorPlans = {
+      severe: {
+        aqiLabel: 'AQI: 310 (Severe Smog)',
+        badgeClass: 'bg-rose-50 text-rose-700 border-rose-200',
+        severityText: 'Severe Smog',
+        severityColor: 'text-rose-600',
+        impactPill: 'Est. Impact: -68% PM2.5 Exposure & -2.8 kg CO₂/day',
+        cards: [
+          {
+            tag: 'Low-Emission Daily Routine',
+            tagColor: 'bg-sky-100 text-sky-700',
+            icon: '🚇',
+            title: 'Consolidate Trips & Carpool / Metro',
+            desc: 'Combine grocery and school errands into one midday trip or take metro/public transit instead of idling in winter traffic.',
+            impactTitle: 'Direct Measurable Impact',
+            impactDetail: 'Cuts tailpipe NOx & PM2.5 emissions by ~2.4 kg CO₂ per commute and avoids peak rush-hour inhalation by 55%.'
+          },
+          {
+            tag: 'Indoor Air Quality (IAQ) Hack',
+            tagColor: 'bg-teal-100 text-teal-800',
+            icon: '🧼',
+            title: 'Wet-Mop Floors & Seal Door Drafts',
+            desc: 'Replace dry sweeping with damp microfiber mopping and place rolled damp towels or draft stoppers under exterior doors.',
+            impactTitle: 'Direct Measurable Impact',
+            impactDetail: 'Prevents settled heavy PM2.5 dust from re-suspending into breathing zones—lowering indoor particulate load by 40%.'
+          },
+          {
+            tag: 'Sustainable Alternative',
+            tagColor: 'bg-amber-100 text-amber-800',
+            icon: '🍲',
+            title: 'Electric Induction + Exhaust Hood Cooking',
+            desc: 'Switch from open-flame frying or incense/candles to covered induction/pressure cooking with the kitchen chimney on.',
+            impactTitle: 'Direct Measurable Impact',
+            impactDetail: 'Eliminates indoor NO₂ and ultrafine cooking smoke spikes (which can otherwise exceed outdoor AQI 400 inside kitchens).'
+          }
+        ]
+      },
+      poor: {
+        aqiLabel: 'AQI: 195 (Poor Air)',
+        badgeClass: 'bg-amber-50 text-amber-800 border-amber-200',
+        severityText: 'Poor / Unhealthy',
+        severityColor: 'text-amber-600',
+        impactPill: 'Est. Impact: -52% PM2.5 Exposure & -2.1 kg CO₂/day',
+        cards: [
+          {
+            tag: 'Low-Emission Daily Routine',
+            tagColor: 'bg-sky-100 text-sky-700',
+            icon: '🕒',
+            title: 'Shift Outdoor Errands to 1 PM – 4 PM',
+            desc: 'Schedule walks, deliveries, and outdoor chores in the sunny afternoon window when atmospheric mixing disperses smog.',
+            impactTitle: 'Direct Measurable Impact',
+            impactDetail: 'Reduces lung particulate dose by up to 45% compared to cold 7 AM morning inversion hours.'
+          },
+          {
+            tag: 'Indoor Air Quality (IAQ) Hack',
+            tagColor: 'bg-teal-100 text-teal-800',
+            icon: '💨',
+            title: 'Recirculate Mode & HEPA Clean-Zone',
+            desc: 'Run bedroom air purifier on medium-high 1 hour before sleep and keep car AC on "Recirculate" mode on main roads.',
+            impactTitle: 'Direct Measurable Impact',
+            impactDetail: 'Filters 99.5% of 0.3-micron particles in your sleeping zone for 8 hours of uninterrupted respiratory recovery.'
+          },
+          {
+            tag: 'Sustainable Alternative',
+            tagColor: 'bg-amber-100 text-amber-800',
+            icon: '🍂',
+            title: 'Compost Leaves — Zero Open Burning',
+            desc: 'Never burn dry garden leaves or trash in winter; shred and compost them in a balcony bin or municipal green-waste drop.',
+            impactTitle: 'Direct Measurable Impact',
+            impactDetail: '1 kg of burned dry leaves releases ~60g of toxic PM2.5 & carbon monoxide; composting turns it into rich soil.'
+          }
+        ]
+      },
+      moderate: {
+        aqiLabel: 'AQI: 115 (Moderate Haze)',
+        badgeClass: 'bg-yellow-50 text-yellow-800 border-yellow-200',
+        severityText: 'Moderate Haze',
+        severityColor: 'text-amber-500',
+        impactPill: 'Est. Impact: -38% Emissions & +30% Fresh Air',
+        cards: [
+          {
+            tag: 'Low-Emission Daily Routine',
+            tagColor: 'bg-sky-100 text-sky-700',
+            icon: '🚲',
+            title: 'E-Bike or Walk Short 2 km Errands',
+            desc: 'Leave the car parked for neighborhood trips under 2 km and choose shaded green lanes away from heavy diesel traffic.',
+            impactTitle: 'Direct Measurable Impact',
+            impactDetail: 'Saves 1.2 kg CO₂ per short trip and eliminates cold-engine catalytic converter emissions.'
+          },
+          {
+            tag: 'Indoor Air Quality (IAQ) Hack',
+            tagColor: 'bg-teal-100 text-teal-800',
+            icon: '🪟',
+            title: 'Cross-Ventilation Flush at Midday',
+            desc: 'Open opposite windows for 25 minutes around 2 PM to flush out accumulated indoor CO₂ and household VOCs.',
+            impactTitle: 'Direct Measurable Impact',
+            impactDetail: 'Drops indoor CO₂ from >1,200 ppm back to ~480 ppm, boosting mental alertness and sleep quality.'
+          },
+          {
+            tag: 'Sustainable Alternative',
+            tagColor: 'bg-amber-100 text-amber-800',
+            icon: '🧴',
+            title: 'Fragrance-Free Plant-Based Cleaners',
+            desc: 'Swap aerosol sprays and harsh bleach cleaners for vinegar-citrus or unscented bio-enzyme cleaners.',
+            impactTitle: 'Direct Measurable Impact',
+            impactDetail: 'Cuts indoor Volatile Organic Compounds (VOCs) by up to 65%, preventing throat and sinus irritation.'
+          }
+        ]
+      },
+      good: {
+        aqiLabel: 'AQI: 48 (Good / Clear)',
+        badgeClass: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+        severityText: 'Good & Breezy',
+        severityColor: 'text-emerald-600',
+        impactPill: 'Est. Impact: Sustains Clean Air & -3.2 kg CO₂/day',
+        cards: [
+          {
+            tag: 'Low-Emission Daily Routine',
+            tagColor: 'bg-sky-100 text-sky-700',
+            icon: '☀️',
+            title: 'Solar-Dry Laundry & Outdoor Walk',
+            desc: 'Enjoy brisk outdoor exercise in parks and air-dry clothes in natural sunlight instead of running an electric dryer.',
+            impactTitle: 'Direct Measurable Impact',
+            impactDetail: 'Saves ~2.5 kWh of electricity per load (~1.8 kg CO₂) while naturally sanitizing fabrics with UV light.'
+          },
+          {
+            tag: 'Indoor Air Quality (IAQ) Hack',
+            tagColor: 'bg-teal-100 text-teal-800',
+            icon: '🌿',
+            title: 'Wash AC/Purifier Filters & Mist Plants',
+            desc: 'Use clean-air days to rinse mesh pre-filters and wipe dust off houseplant leaves so they photosynthesize efficiently.',
+            impactTitle: 'Direct Measurable Impact',
+            impactDetail: 'Restores 100% airflow efficiency to purifiers and increases leaf stomatal gas exchange by 25%.'
+          },
+          {
+            tag: 'Sustainable Alternative',
+            tagColor: 'bg-amber-100 text-amber-800',
+            icon: '🌱',
+            title: 'Community Tree & Balcony Planting',
+            desc: 'Adopt native pollution-tolerant saplings or expand balcony greenery to build long-term neighborhood dust barriers.',
+            impactTitle: 'Direct Measurable Impact',
+            impactDetail: 'A mature urban tree captures up to 22 kg of CO₂ annually and traps airborne dust on leaf surfaces.'
+          }
+        ]
+      }
+    };
+
+    const lifestyleNotes = {
+      family: 'Focus on indoor play zones, kid-sized N95 masks for school runs, and steam inhalation after outdoor exposure.',
+      commuter: 'Keep car cabin filter clean, use metro/carpool lanes, and wash face/hands immediately upon returning home.',
+      wfh: 'Place air-purifying plants beside your desk, take midday ventilation breaks, and avoid daytime space-heater dryness.',
+      seniors: 'Avoid early morning chill & smog entirely, keep warm humidified air indoors, and monitor pulse/breathing comfort.'
+    };
+
+    function renderNavigatorPlan() {
+      const city = citySelect.value === 'Custom'
+        ? (customCityInput.value.trim() || 'Your City')
+        : citySelect.value;
+      const severity = aqiSeveritySelect.value;
+      const lifestyle = lifestyleSelect.value;
+      const lifestyleText = lifestyleSelect.options[lifestyleSelect.selectedIndex].text;
+      const plan = navigatorPlans[severity];
+
+      // Update Hero & Nav Badges
+      document.getElementById('heroCityDisplay').textContent = city;
+      const heroSev = document.getElementById('heroSeverityDisplay');
+      heroSev.textContent = plan.severityText;
+      heroSev.className = `font-display font-bold text-base sm:text-lg mt-0.5 ${plan.severityColor}`;
+
+      const navBadge = document.getElementById('navAqiBadge');
+      navBadge.className = `text-xs font-semibold px-3 py-1.5 rounded-full border flex items-center gap-1.5 ${plan.badgeClass}`;
+      navBadge.innerHTML = `<span class="w-2 h-2 rounded-full bg-current animate-pulse"></span><span>${plan.aqiLabel}</span>`;
+
+      // Update Banner
+      document.getElementById('advisoryTitle').textContent = `${city} • ${plan.severityText} Protocol (${lifestyleText})`;
+      document.getElementById('advisoryDesc').textContent = lifestyleNotes[lifestyle];
+      document.getElementById('impactSummaryPill').textContent = plan.impactPill;
+
+      // Render 3 Recommendation Cards
+      const grid = document.getElementById('recommendationsGrid');
+      grid.innerHTML = plan.cards.map(card => `
+        <div class="glass-card rounded-3xl p-5 sm:p-6 flex flex-col justify-between hover:shadow-md transition">
+          <div>
+            <div class="flex items-center justify-between gap-2 mb-3">
+              <span class="text-xs font-bold px-3 py-1 rounded-full ${card.tagColor}">${card.tag}</span>
+              <span class="text-2xl">${card.icon}</span>
+            </div>
+            <h3 class="font-display font-bold text-lg text-slate-800 mb-2">${card.title}</h3>
+            <p class="text-xs sm:text-sm text-slate-600 leading-relaxed mb-4">${card.desc}</p>
+          </div>
+          <div class="rounded-2xl bg-emerald-50/90 border border-emerald-200/80 p-3.5">
+            <div class="text-[11px] font-bold uppercase tracking-wider text-emerald-800 flex items-center gap-1">
+              <span>📊</span>
+              <span>${card.impactTitle}</span>
+            </div>
+            <p class="text-xs text-emerald-900 mt-1 leading-relaxed">${card.impactDetail}</p>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    navigatorForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      renderNavigatorPlan();
+      showToast('Plan Updated!', 'Your location, smog level, and lifestyle recommendations have been refreshed.', 'success');
+    });
+
+    // ==========================================
+    // 3. CUTE AI CHATBOT ("AEROBOT")
+    // ==========================================
+    const chatMessages = document.getElementById('chatMessages');
+    const chatForm = document.getElementById('chatForm');
+    const chatInput = document.getElementById('chatInput');
+    const clearChatBtn = document.getElementById('clearChatBtn');
+
+    function appendChatBubble(sender, htmlText) {
+      const wrapper = document.createElement('div');
+      if (sender === 'user') {
+        wrapper.className = 'flex items-start justify-end gap-3';
+        wrapper.innerHTML = `
+          <div class="bg-sky-500 text-white rounded-2xl rounded-tr-none px-4 py-3 text-sm max-w-md shadow-sm leading-relaxed">
+            ${htmlText}
+          </div>
+          <div class="w-8 h-8 rounded-xl bg-slate-200 text-slate-700 flex items-center justify-center font-bold text-xs shrink-0">You</div>
+        `;
+      } else {
+        wrapper.className = 'flex items-start gap-3';
+        wrapper.innerHTML = `
+          <div class="w-8 h-8 rounded-xl bg-sky-100 text-sky-600 flex items-center justify-center font-bold text-xs shrink-0">🤖</div>
+          <div class="bg-sky-50 border border-sky-100 rounded-2xl rounded-tl-none px-4 py-3 text-sm text-slate-700 max-w-xl leading-relaxed">
+            ${htmlText}
+          </div>
+        `;
+      }
+      chatMessages.appendChild(wrapper);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    function getLocalAeroBotReply(query) {
+      const q = query.toLowerCase();
+      if (q.includes('creative') || q.includes('hobby') || q.includes('hobbies') || q.includes('learn')) {
+        return `🎨 <strong>Creative Things to Learn Indoors on High-Smog Days:</strong><br/>
+        1. <strong>Watercolor or Gouache Botanical Painting:</strong> Paint the air-purifying plants in your living room!<br/>
+        2. <strong>Origami &amp; Paper Sculpture:</strong> Relaxing, screen-free, and great for all ages.<br/>
+        3. <strong>Terrarium Building or Hydroponic Herb Jars:</strong> Grow mint and basil on a sunny windowsill.<br/>
+        4. <strong>Digital Illustration, Calligraphy, or Ukulele Basics:</strong> Spend 30 minutes a day mastering a joyful indoor skill!`;
+      }
+      if (q.includes('activity') || q.includes('activities') || q.includes('family') || q.includes('kids') || q.includes('bored') || q.includes('indoor')) {
+        return `🎲 <strong>Fun Indoor Activities for Families &amp; Kids:</strong><br/>
+        • <strong>Living Room Treasure Hunt:</strong> Hide eco-clues around the house.<br/>
+        • <strong>DIY Healthy Smoothie &amp; Immunity Snack Lab:</strong> Blend berries, banana, spinach, and honey together.<br/>
+        • <strong>Indoor Mini-Obstacle Course or Kids Yoga:</strong> Gentle movement without heavy deep-lung outdoor panting.<br/>
+        • <strong>Board Game Championship &amp; Shadow Puppet Theater:</strong> Turn a smoggy evening into cozy family memory time!`;
+      }
+      if (q.includes('plant') || q.includes('purif') || q.includes('green')) {
+        return `🌿 <strong>Top Indoor Air-Purifying Plants:</strong><br/>
+        • <strong>Snake Plant (Sansevieria):</strong> Releases oxygen even at night—ideal for bedrooms!<br/>
+        • <strong>Areca Palm:</strong> Acts as a natural living humidifier during dry winter smog.<br/>
+        • <strong>Peace Lily &amp; Spider Plant:</strong> Absorb indoor formaldehyde, benzene, and carbon monoxide.<br/>
+        <em>Tip: Wipe their leaves once a week with a damp cloth so dust doesn't block their pores!</em>`;
+      }
+      if (q.includes('precaution') || q.includes('outside') || q.includes('mask') || q.includes('safe') || q.includes('smog')) {
+        return `😷 <strong>Essential Winter Smog Precautions:</strong><br/>
+        1. Wear a snug <strong>N95/N99 mask</strong> whenever AQI exceeds 150.<br/>
+        2. Avoid outdoor workouts between 6 AM–10 AM and after sunset.<br/>
+        3. Use saline nasal drops and wash your face/eyes right after returning indoors.<br/>
+        4. Never burn candles, mosquito coils, or incense inside closed rooms.`;
+      }
+      if (q.includes('emission') || q.includes('co2') || q.includes('swap') || q.includes('routine')) {
+        return `🚲 <strong>High-Impact Low-Emission Swaps:</strong><br/>
+        • <strong>Metro / Carpool 3x a week:</strong> Saves ~6–8 kg CO₂ weekly.<br/>
+        • <strong>Switch to Induction / Pressure Cooking:</strong> Cuts kitchen energy use by 35% and eliminates indoor NO₂.<br/>
+        • <strong>Unplug Standby Electronics &amp; Set Heater to 20°C:</strong> Saves ~1.5 kg CO₂ daily while keeping indoor air comfortable.`;
+      }
+      return `🌤️ Great question! Here is AeroBot's quick tip for <strong>${document.getElementById('heroCityDisplay').textContent}</strong>:<br/>
+      • Keep indoor air fresh by pairing <strong>2–3 potted plants</strong> (like Snake Plant &amp; Areca Palm) with damp floor mopping.<br/>
+      • Turn indoor time into a creative adventure: try <strong>sketching, indoor herb gardening, journaling, or family board games</strong>!<br/>
+      • Ask me specifically about <em>"creative hobbies"</em>, <em>"indoor plants"</em>, or <em>"outdoor precautions"</em> for tailored ideas!`;
+    }
+
+    async function handleAeroBotQuery(userText) {
+      appendChatBubble('user', userText);
+
+      // Typing indicator
+      const typingId = 'typing-' + Date.now();
+      const typingDiv = document.createElement('div');
+      typingDiv.id = typingId;
+      typingDiv.className = 'flex items-start gap-3';
+      typingDiv.innerHTML = `
+        <div class="w-8 h-8 rounded-xl bg-sky-100 text-sky-600 flex items-center justify-center font-bold text-xs shrink-0">🤖</div>
+        <div class="bg-sky-50 border border-sky-100 rounded-2xl rounded-tl-none px-4 py-3 text-xs text-slate-500 italic">
+          AeroBot is thinking... ✨
+        </div>
+      `;
+      chatMessages.appendChild(typingDiv);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+
+      try {
+        const apiKey = "";
+        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
+        const city = document.getElementById('heroCityDisplay').textContent;
+        const severity = document.getElementById('heroSeverityDisplay').textContent;
+
+        const payload = {
+          contents: [{
+            parts: [{
+              text: `You are AeroBot, a cute, warm, encouraging robotic air-quality assistant inside the CLEAR AIR app (presented by Janhvi). The user is in ${city} experiencing ${severity}. Keep your response concise (under 110 words), friendly, practical, and formatted with simple bullet points or short paragraphs. User asks: ${userText}`
+            }]
+          }]
+        };
+
+        const response = await fetch(apiUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        if (!response.ok) throw new Error('Fallback to local engine');
+        const result = await response.json();
+        const aiReply = result?.candidates?.[0]?.content?.parts?.[0]?.text;
+        document.getElementById(typingId)?.remove();
+
+        if (aiReply) {
+          const formatted = aiReply
+            .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+            .replace(/\n/g, '<br/>');
+          appendChatBubble('bot', formatted);
+        } else {
+          appendChatBubble('bot', getLocalAeroBotReply(userText));
+        }
+      } catch (err) {
+        document.getElementById(typingId)?.remove();
+        appendChatBubble('bot', getLocalAeroBotReply(userText));
+      }
+    }
+
+    chatForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const text = chatInput.value.trim();
+      if (!text) return;
+      chatInput.value = '';
+      handleAeroBotQuery(text);
+    });
+
+    document.querySelectorAll('.aero-prompt-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const prompt = btn.getAttribute('data-prompt');
+        handleAeroBotQuery(prompt);
+      });
+    });
+
+    clearChatBtn.addEventListener('click', () => {
+      chatMessages.innerHTML = `
+        <div class="flex items-start gap-3">
+          <div class="w-8 h-8 rounded-xl bg-sky-100 text-sky-600 flex items-center justify-center font-bold text-xs shrink-0">🤖</div>
+          <div class="bg-sky-50 border border-sky-100 rounded-2xl rounded-tl-none px-4 py-3 text-sm text-slate-700 max-w-xl leading-relaxed">
+            Chat cleared! Ready for fresh ideas! Ask me about indoor creative hobbies, air-purifying plants, or smog protection tips. 🌤️
+          </div>
+        </div>
+      `;
+    });
+
+    // ==========================================
+    // 4. INDOOR AIR-PURIFYING PLANTS GUIDE
+    // ==========================================
+    const plantsData = [
+      {
+        id: 'snake',
+        name: 'Snake Plant (Sansevieria)',
+        emoji: '🪴',
+        toxins: ['Formaldehyde', 'Benzene', 'Night CO₂'],
+        light: 'Low to Bright Indirect Light',
+        water: 'Every 10–14 days',
+        tags: ['low-light', 'night-o2'],
+        petSafe: false,
+        boost: 12,
+        benefit: 'Converts CO₂ into fresh oxygen at night, making it ideal for closed winter bedrooms.',
+        added: true
+      },
+      {
+        id: 'areca',
+        name: 'Areca Palm',
+        emoji: '🌴',
+        toxins: ['Xylene', 'Toluene', 'Dry Air'],
+        light: 'Bright Filtered Sunlight',
+        water: '2–3 times a week',
+        tags: ['pet-safe'],
+        petSafe: true,
+        boost: 14,
+        benefit: 'Acts as a natural bio-humidifier, soothing dry throats caused by winter smog and room heaters.',
+        added: true
+      },
+      {
+        id: 'peace-lily',
+        name: 'Peace Lily',
+        emoji: '🤍',
+        toxins: ['Mold Spores', 'Ammonia', 'Benzene'],
+        light: 'Low to Medium Shade',
+        water: 'Once a week',
+        tags: ['low-light'],
+        petSafe: false,
+        boost: 13,
+        benefit: 'Absorbs airborne mold spores and household chemical vapors in bathrooms and living rooms.',
+        added: false
+      },
+      {
+        id: 'spider',
+        name: 'Spider Plant',
+        emoji: '🌱',
+        toxins: ['Carbon Monoxide', 'Xylene'],
+        light: 'Indirect Daylight',
+        water: 'Once a week',
+        tags: ['low-light', 'pet-safe'],
+        petSafe: true,
+        boost: 11,
+        benefit: 'Fast-growing, super resilient beginner plant that clears carbon monoxide and kitchen fumes.',
+        added: false
+      },
+      {
+        id: 'boston-fern',
+        name: 'Boston Fern',
+        emoji: '🌿',
+        toxins: ['Formaldehyde', 'PM Dust Trapping'],
+        light: 'Cool, Indirect Light',
+        water: 'Keep soil lightly moist',
+        tags: ['pet-safe'],
+        petSafe: true,
+        boost: 12,
+        benefit: 'Feathery fronds trap fine floating dust particles and boost indoor humidity naturally.',
+        added: false
+      },
+      {
+        id: 'rubber-plant',
+        name: 'Rubber Plant (Ficus)',
+        emoji: '🍃',
+        toxins: ['Formaldehyde', 'Airborne Bacteria'],
+        light: 'Medium to Bright Light',
+        water: 'Every 7–10 days',
+        tags: ['low-light'],
+        petSafe: false,
+        boost: 13,
+        benefit: 'Broad glossy leaves capture particulate dust and dramatically reduce indoor formaldehyde.',
+        added: false
+      }
+    ];
+
+    let activePlantFilter = 'all';
+
+    function updatePlantScoreUI() {
+      const addedPlants = plantsData.filter(p => p.added);
+      const totalBoost = addedPlants.reduce((sum, p) => sum + p.boost, 0);
+      const pct = Math.min(100, Math.round((totalBoost / 75) * 100));
+
+      document.getElementById('plantMeterBar').style.width = `${pct}%`;
+      document.getElementById('plantMeterText').textContent = `+${totalBoost}% Freshness`;
+      document.getElementById('heroPlantScore').textContent = `${addedPlants.length} Plants (+${totalBoost}% IAQ)`;
+    }
+
+    function renderPlants() {
+      const grid = document.getElementById('plantsGrid');
+      const filtered = activePlantFilter === 'all'
+        ? plantsData
+        : plantsData.filter(p => p.tags.includes(activePlantFilter));
+
+      grid.innerHTML = filtered.map(plant => `
+        <div class="glass-card rounded-3xl p-5 flex flex-col justify-between transition hover:shadow-md ${plant.added ? 'ring-2 ring-emerald-400 bg-emerald-50/30' : ''}">
+          <div>
+            <div class="flex items-start justify-between gap-2 mb-3">
+              <div class="flex items-center gap-2.5">
+                <span class="w-11 h-11 rounded-2xl bg-emerald-100/80 flex items-center justify-center text-2xl">${plant.emoji}</span>
+                <div>
+                  <h3 class="font-display font-bold text-base text-slate-800">${plant.name}</h3>
+                  <span class="text-[11px] font-semibold ${plant.petSafe ? 'text-emerald-600' : 'text-amber-600'}">
+                    ${plant.petSafe ? '🐾 Pet Friendly' : '⚠️ Keep out of pet reach'}
+                  </span>
+                </div>
+              </div>
+              <span class="text-xs font-bold px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800">+${plant.boost}% IAQ</span>
+            </div>
+
+            <p class="text-xs text-slate-600 leading-relaxed mb-3">${plant.benefit}</p>
+
+            <div class="flex flex-wrap gap-1.5 mb-3">
+              ${plant.toxins.map(t => `<span class="text-[11px] font-medium px-2.5 py-0.5 rounded-lg bg-sky-50 text-sky-700 border border-sky-100">Filters: ${t}</span>`).join('')}
+            </div>
+
+            <div class="text-[11px] text-slate-500 space-y-1 mb-4 bg-white/70 rounded-xl p-2.5 border border-slate-100">
+              <div>☀️ <strong>Light:</strong> ${plant.light}</div>
+              <div>💧 <strong>Water:</strong> ${plant.water}</div>
+            </div>
+          </div>
+
+          <button type="button" onclick="togglePlant('${plant.id}')" class="w-full rounded-2xl py-2.5 px-4 text-xs font-semibold transition ${
+            plant.added
+              ? 'bg-emerald-600 text-white hover:bg-emerald-700'
+              : 'bg-emerald-50 text-emerald-800 hover:bg-emerald-100 border border-emerald-200'
+          }">
+            ${plant.added ? '✓ Added to My Home Plan' : '+ Add to My Home Plan'}
+          </button>
+        </div>
+      `).join('');
+
+      updatePlantScoreUI();
+    }
+
+    window.togglePlant = function(id) {
+      const plant = plantsData.find(p => p.id === id);
+      if (!plant) return;
+      plant.added = !plant.added;
+      renderPlants();
+      showToast(
+        plant.added ? `${plant.name} Added!` : `${plant.name} Removed`,
+        plant.added ? `Added to your home air-purification plan (+${plant.boost}% IAQ boost).` : 'Removed from your indoor room plan.',
+        plant.added ? 'success' : 'info'
+      );
+    };
+
+    document.querySelectorAll('.plant-filter-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.plant-filter-btn').forEach(b => {
+          b.className = 'plant-filter-btn px-4 py-1.5 rounded-full text-xs font-semibold bg-white text-slate-600 border border-slate-200 hover:bg-emerald-50 transition';
+        });
+        btn.className = 'plant-filter-btn active px-4 py-1.5 rounded-full text-xs font-semibold bg-emerald-600 text-white transition';
+        activePlantFilter = btn.getAttribute('data-filter');
+        renderPlants();
+      });
+    });
+
+    // ==========================================
+    // 5. SMART OUTDOOR & INDOOR REMINDERS
+    // ==========================================
+    let reminders = [
+      { id: 1, category: 'outdoor', time: '08:00 AM', text: 'Check AQI & wear fitted N95 mask before stepping out' },
+      { id: 2, category: 'outdoor', time: '08:15 AM', text: 'Switch car AC to Recirculate mode on main roads' },
+      { id: 3, category: 'indoor', time: '01:30 PM', text: 'Open windows for 20 mins midday fresh-air flush' },
+      { id: 4, category: 'indoor', time: '07:00 PM', text: 'Damp mop living room & turn on bedroom HEPA purifier' }
+    ];
+
+    function renderReminders() {
+      const outdoorList = document.getElementById('outdoorRemindersList');
+      const indoorList = document.getElementById('indoorRemindersList');
+
+      const buildItem = (item) => `
+        <div class="rounded-2xl bg-white border border-slate-100 p-3 flex items-center justify-between gap-2 shadow-sm">
+          <div class="min-w-0">
+            <span class="inline-block text-[11px] font-bold px-2 py-0.5 rounded-md ${item.category === 'outdoor' ? 'bg-amber-100 text-amber-800' : 'bg-teal-100 text-teal-800'}">${item.time}</span>
+            <p class="text-xs font-medium text-slate-700 mt-1">${item.text}</p>
+          </div>
+          <div class="flex items-center gap-1 shrink-0">
+            <button type="button" title="Trigger Notification Now" onclick="triggerReminderAlert(${item.id})" class="w-8 h-8 rounded-xl bg-sky-50 hover:bg-sky-100 text-sky-600 flex items-center justify-center text-sm transition">🔔</button>
+            <button type="button" title="Remove" onclick="deleteReminder(${item.id})" class="w-8 h-8 rounded-xl hover:bg-rose-50 text-slate-400 hover:text-rose-500 flex items-center justify-center text-xs transition">✕</button>
+          </div>
+        </div>
+      `;
+
+      outdoorList.innerHTML = reminders.filter(r => r.category === 'outdoor').map(buildItem).join('') || '<p class="text-xs text-slate-400">No outdoor alerts scheduled.</p>';
+      indoorList.innerHTML = reminders.filter(r => r.category === 'indoor').map(buildItem).join('') || '<p class="text-xs text-slate-400">No indoor alerts scheduled.</p>';
+    }
+
+    window.triggerReminderAlert = function(id) {
+      const item = reminders.find(r => r.id === id);
+      if (!item) return;
+      const label = item.category === 'outdoor' ? 'Going Outside Alert' : 'Indoor Air Care Alert';
+      showToast(`${label} (${item.time})`, item.text, 'alert');
+    };
+
+    window.deleteReminder = function(id) {
+      reminders = reminders.filter(r => r.id !== id);
+      renderReminders();
+    };
+
+    document.getElementById('reminderForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const category = document.getElementById('reminderCategory').value;
+      const text = document.getElementById('reminderText').value.trim();
+      const rawTime = document.getElementById('reminderTime').value;
+      if (!text) return;
+
+      // Format 24h time to 12h AM/PM
+      const [hStr, mStr] = rawTime.split(':');
+      let h = parseInt(hStr, 10);
+      const ampm = h >= 12 ? 'PM' : 'AM';
+      h = h % 12 || 12;
+      const formattedTime = `${String(h).padStart(2, '0')}:${mStr} ${ampm}`;
+
+      const newItem = { id: Date.now(), category, time: formattedTime, text };
+      reminders.push(newItem);
+      renderReminders();
+      document.getElementById('reminderText').value = '';
+      showToast('Reminder Scheduled!', `"${text}" set for ${formattedTime}.`, 'success');
+    });
+
+    document.getElementById('triggerSampleAlertBtn').addEventListener('click', () => {
+      const city = document.getElementById('heroCityDisplay').textContent;
+      showToast(
+        `Smog Advisory Alert • ${city}`,
+        'Outdoor PM2.5 is elevated! Wear an N95 mask if stepping outside, keep car AC on recirculate, and mist indoor plants.',
+        'alert'
+      );
+    });
+
+    // ==========================================
+    // 6. INFORMATIVE SMOG KNOWLEDGE QUIZ GAME
+    // ==========================================
+    const quizQuestions = [
+      {
+        q: '1. Why does urban air pollution often trap worse near the ground on cold winter mornings?',
+        options: [
+          'Temperature inversion traps cold dense air & smoke beneath warm air',
+          'Trees produce extra smog at sunrise',
+          'Wind blows faster at 7 AM than at 2 PM'
+        ],
+        answer: 0,
+        explanation: 'Correct! During winter temperature inversion, a layer of warm air acts like a lid, trapping vehicle exhaust and smoke close to ground level until afternoon sun warms the surface.'
+      },
+      {
+        q: '2. Which mask actually filters microscopic PM2.5 particles during severe smog?',
+        options: [
+          'A single-layer cotton handkerchief',
+          'A properly fitted N95 or N99 respirator mask',
+          'A loose scarf wrapped once'
+        ],
+        answer: 1,
+        explanation: 'Spot on! PM2.5 particles are 30x thinner than a human hair. Only electrostatic melt-blown filters in snug N95/N99 masks block ≥95% of them.'
+      },
+      {
+        q: '3. Which houseplant releases oxygen even at night, making it great for bedrooms?',
+        options: [
+          'Snake Plant (Sansevieria)',
+          'Plastic Decorative Fern',
+          'Cactus kept in a dark closet'
+        ],
+        answer: 0,
+        explanation: 'Yes! Snake Plants use Crassulacean Acid Metabolism (CAM) to absorb CO₂ and release oxygen at night.'
+      },
+      {
+        q: '4. What is the best time of day to briefly open windows for fresh-air ventilation in winter smog?',
+        options: [
+          '6:30 AM during morning rush hour',
+          '1:00 PM – 4:00 PM when sunlight disperses ground-level smog',
+          '11:00 PM late at night'
+        ],
+        answer: 1,
+        explanation: 'Right! Mid-afternoon sunlight warms the ground, lifting the inversion layer and lowering outdoor PM2.5 concentrations.'
+      },
+      {
+        q: '5. Which indoor habit reduces fine dust re-suspension without adding chemical fumes?',
+        options: [
+          'Dry broom sweeping with fans on high',
+          'Burning scented paraffin candles',
+          'Damp microfiber mopping & wiping surfaces'
+        ],
+        answer: 2,
+        explanation: 'Awesome! Damp mopping traps settled PM2.5 dust onto the cloth instead of kicking it back into the air you breathe.'
+      }
+    ];
+
+    let currentQIndex = 0;
+    let quizScore = 0;
+    let answeredCurrent = false;
+
+    function getRankName(score) {
+      if (score >= 5) return 'Clear Air Champion 🏆';
+      if (score >= 3) return 'Eco Guardian 🌿';
+      if (score >= 1) return 'Fresh Air Learner 🌤️';
+      return 'Air Rookie';
+    }
+
+    function renderQuiz() {
+      const body = document.getElementById('quizBody');
+      document.getElementById('quizScoreDisplay').textContent = `${quizScore} / ${quizQuestions.length}`;
+      document.getElementById('quizRankDisplay').textContent = getRankName(quizScore);
+
+      if (currentQIndex >= quizQuestions.length) {
+        body.innerHTML = `
+          <div class="text-center py-6 space-y-4">
+            <div class="text-5xl">🏅</div>
+            <h3 class="font-display font-bold text-2xl text-slate-800">Quiz Complete! Rank: ${getRankName(quizScore)}</h3>
+            <p class="text-sm text-slate-600 max-w-lg mx-auto">You scored <strong>${quizScore} out of ${quizQuestions.length}</strong>! Share these clean-air precautions with your family and neighbors.</p>
+            <button type="button" onclick="restartQuiz()" class="rounded-2xl bg-sky-500 hover:bg-sky-600 text-white font-semibold px-6 py-3 text-sm shadow-sm transition">
+              Play Again 🔄
+            </button>
+          </div>
+        `;
+        return;
+      }
+
+      const item = quizQuestions[currentQIndex];
+      body.innerHTML = `
+        <div class="space-y-4">
+          <div class="flex items-center justify-between text-xs font-semibold text-slate-400">
+            <span>Question ${currentQIndex + 1} of ${quizQuestions.length}</span>
+            <span>+1 Point per right answer</span>
+          </div>
+          <h3 class="font-display font-bold text-lg sm:text-xl text-slate-800">${item.q}</h3>
+          <div class="grid grid-cols-1 gap-3">
+            ${item.options.map((opt, idx) => `
+              <button type="button" onclick="selectQuizOption(${idx})" id="quiz-opt-${idx}" class="text-left p-4 rounded-2xl bg-white hover:bg-sky-50 border border-blue-100 text-sm font-medium text-slate-700 transition shadow-sm">
+                <span class="inline-block w-6 h-6 rounded-lg bg-sky-100 text-sky-700 text-xs font-bold text-center leading-6 mr-2">${String.fromCharCode(65 + idx)}</span>
+                ${opt}
+              </button>
+            `).join('')}
+          </div>
+          <div id="quizFeedback" class="hidden rounded-2xl p-4 text-xs sm:text-sm leading-relaxed"></div>
+          <div class="flex justify-end">
+            <button type="button" id="nextQuestionBtn" onclick="nextQuizQuestion()" class="hidden rounded-2xl bg-slate-800 hover:bg-slate-900 text-white font-semibold px-5 py-2.5 text-sm transition">
+              ${currentQIndex === quizQuestions.length - 1 ? 'See Final Rank →' : 'Next Question →'}
+            </button>
+          </div>
+        </div>
+      `;
+    }
+
+    window.selectQuizOption = function(selectedIdx) {
+      if (answeredCurrent) return;
+      answeredCurrent = true;
+      const item = quizQuestions[currentQIndex];
+      const isCorrect = selectedIdx === item.answer;
+
+      if (isCorrect) quizScore++;
+
+      item.options.forEach((_, idx) => {
+        const btn = document.getElementById(`quiz-opt-${idx}`);
+        btn.disabled = true;
+        if (idx === item.answer) {
+          btn.className = 'text-left p-4 rounded-2xl bg-emerald-50 border-2 border-emerald-500 text-sm font-semibold text-emerald-900';
+        } else if (idx === selectedIdx && !isCorrect) {
+          btn.className = 'text-left p-4 rounded-2xl bg-rose-50 border-2 border-rose-400 text-sm font-medium text-rose-900';
+        } else {
+          btn.className = 'text-left p-4 rounded-2xl bg-white/60 border border-slate-100 text-sm text-slate-400';
+        }
+      });
+
+      const feedback = document.getElementById('quizFeedback');
+      feedback.classList.remove('hidden');
+      feedback.className = `rounded-2xl p-4 text-xs sm:text-sm leading-relaxed ${
+        isCorrect ? 'bg-emerald-100/80 text-emerald-900 border border-emerald-200' : 'bg-amber-50 text-amber-900 border border-amber-200'
+      }`;
+      feedback.innerHTML = `<strong>${isCorrect ? '🎉 Spot on!' : '💡 Good try!'}</strong> ${item.explanation}`;
+
+      document.getElementById('nextQuestionBtn').classList.remove('hidden');
+      document.getElementById('quizScoreDisplay').textContent = `${quizScore} / ${quizQuestions.length}`;
+      document.getElementById('quizRankDisplay').textContent = getRankName(quizScore);
+    };
+
+    window.nextQuizQuestion = function() {
+      currentQIndex++;
+      answeredCurrent = false;
+      renderQuiz();
+    };
+
+    window.restartQuiz = function() {
+      currentQIndex = 0;
+      quizScore = 0;
+      answeredCurrent = false;
+      renderQuiz();
+    };
+
+    // ==========================================
+    // 7. END-OF-DAY INTERACTIVE ACTION CHECKLIST
+    // ==========================================
+    let checklistItems = [
+      { id: 1, text: 'Checked local AQI & scheduled outdoor trips during cleaner midday hours', done: true },
+      { id: 2, text: 'Wore a snug N95/N99 mask and protective eyewear while outside', done: false },
+      { id: 3, text: 'Chose low-emission commute (carpool, metro, walking, or trip consolidation)', done: false },
+      { id: 4, text: 'Damp-mopped indoor floors & sealed window/door drafts against smog', done: false },
+      { id: 5, text: 'Watered/misted indoor air-purifying plants (Snake Plant, Areca Palm, etc.)', done: false },
+      { id: 6, text: 'Did an indoor creative/family activity & hydrated with antioxidant-rich foods', done: false }
+    ];
+
+    function renderChecklist() {
+      const container = document.getElementById('checklistItemsContainer');
+      const doneCount = checklistItems.filter(i => i.done).length;
+      const totalCount = checklistItems.length;
+      const pct = totalCount === 0 ? 0 : Math.round((doneCount / totalCount) * 100);
+
+      document.getElementById('checklistProgressLabel').textContent = `${pct}%`;
+      document.getElementById('checklistProgressBar').style.width = `${pct}%`;
+      document.getElementById('heroChecklistScore').textContent = `${doneCount} / ${totalCount} Completed`;
+
+      const completeBanner = document.getElementById('checklistCompleteBanner');
+      if (totalCount > 0 && doneCount === totalCount) {
+        completeBanner.classList.remove('hidden');
+      } else {
+        completeBanner.classList.add('hidden');
+      }
+
+      container.innerHTML = checklistItems.map(item => `
+        <div class="rounded-2xl border p-3.5 flex items-center justify-between gap-3 transition ${
+          item.done ? 'bg-emerald-50/70 border-emerald-200' : 'bg-sky-50/40 border-blue-100 hover:bg-sky-50'
+        }">
+          <label class="flex items-center gap-3 cursor-pointer flex-1 select-none">
+            <input type="checkbox" ${item.done ? 'checked' : ''} onchange="toggleChecklistItem(${item.id})" class="w-5 h-5 rounded-lg accent-emerald-600 cursor-pointer" />
+            <span class="text-xs sm:text-sm font-medium ${item.done ? 'line-through text-slate-400' : 'text-slate-700'}">${item.text}</span>
+          </label>
+          <button type="button" onclick="removeChecklistItem(${item.id})" class="text-slate-400 hover:text-rose-500 text-xs px-2 py-1 rounded-lg transition" title="Remove task">✕</button>
+        </div>
+      `).join('');
+    }
+
+    window.toggleChecklistItem = function(id) {
+      const item = checklistItems.find(i => i.id === id);
+      if (!item) return;
+      item.done = !item.done;
+      renderChecklist();
+      if (checklistItems.every(i => i.done) && checklistItems.length > 0) {
+        showToast('100% Checklist Complete! 🎉', 'Every Clean Air task for today is checked off!', 'success');
+      }
+    };
+
+    window.removeChecklistItem = function(id) {
+      checklistItems = checklistItems.filter(i => i.id !== id);
+      renderChecklist();
+    };
+
+    document.getElementById('addChecklistForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const input = document.getElementById('newChecklistInput');
+      const text = input.value.trim();
+      if (!text) return;
+      checklistItems.push({ id: Date.now(), text, done: false });
+      input.value = '';
+      renderChecklist();
+      showToast('Task Added', 'Added to your End-of-Day Clean Air Checklist.', 'info');
+    });
+
+    // ==========================================
+    // INITIALIZE APP ON LOAD
+    // ==========================================
+    window.addEventListener('DOMContentLoaded', () => {
+      renderNavigatorPlan();
+      renderPlants();
+      renderReminders();
+      renderQuiz();
+      renderChecklist();
+    });
+  </script>
+</body>
+</html>
